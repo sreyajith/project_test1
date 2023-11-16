@@ -1,23 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { createContext, useEffect, useState } from 'react';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import NavBar from "./components/NavBar";
+import { Route, Routes } from "react-router-dom";
+import UserAuthForm from "./Pages/userAuthForm.page";
+import { lookInSession } from './common/session';
+import Editor from './Pages/editor.pages';
 
+export const UserContext=createContext({})
 function App() {
+
+  const[userAuth,setUserAuth]=useState();
+  useEffect(()=>{
+    let userInSession=lookInSession("user");
+    userInSession?setUserAuth(JSON.parse(userInSession)):setUserAuth({access_token:null})
+  },[])
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <UserContext.Provider value={{userAuth,setUserAuth}}>
+      <Routes>
+        <Route path="/editor" element={<Editor/>} />
+        <Route path="/" element={<NavBar />}>
+          <Route path="/signin" element={<UserAuthForm type="sign-in" />}/> 
+          <Route path="/signup" element={<UserAuthForm type="sign-up" />}/> 
+        </Route>
+      </Routes>
+      </UserContext.Provider>
     </div>
   );
 }
